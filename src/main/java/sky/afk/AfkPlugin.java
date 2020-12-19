@@ -75,7 +75,7 @@ public class AfkPlugin extends Plugin{
                         Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] at now inactive!", NetClient.colorizeName(player.id(), player.name())));
                         activity.afk = true;
                         if(config.enableKick){
-                            if(!player.admin() && !config.ignoreAdmins){
+                            if(!player.admin() || player.admin() && !config.ignoreAdmins){
                                 player.kick("You have been kicked for inactive from the server!", (int)config.kickDuration);
                             }
                         }
@@ -84,7 +84,7 @@ public class AfkPlugin extends Plugin{
                     }
                 }
             }
-        }, 3, 15);
+        }, 5, 15);
     }
 
     static class Config{
