@@ -1,11 +1,12 @@
-### Building a Jar
+# AfkPlugin
+Plugin for auto kicking or notice when inactive players
+
+## Building a Jar
 
 `gradlew jar` / `./gradlew jar`
 
 Output jar should be in `build/libs`.
 
+## Installing
 
-### Installing
-
-Simply place the output jar from the step above in your server's `config/mods` directory and restart the server.
-List your currently installed plugins/mods by running the `mods` command.
+Put jar file to `config/mods` folder.
