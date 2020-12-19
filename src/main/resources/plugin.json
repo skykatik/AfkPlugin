@@ -1,0 +1,7 @@
+{
+  "name": "AfkPlugin",
+  "author": "Skat",
+  "main": "sky.afk.AfkPlugin",
+  "description": "Auto kick inactive players.",
+  "version": 0.1
+}

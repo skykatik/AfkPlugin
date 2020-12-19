@@ -1,0 +1,35 @@
+apply plugin: "java"
+
+version '1.0'
+
+sourceCompatibility = 1.8
+
+repositories{
+    mavenCentral()
+    maven{ url 'https://www.jitpack.io' }
+}
+
+ext{
+    mindustryVrsion = "v120"
+    gsonVersion = "2.8.6"
+}
+
+dependencies{
+    compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVrsion"
+    compileOnly "com.github.Anuken.Mindustry:core:$mindustryVrsion"
+
+    implementation "com.google.code.gson:gson:$gsonVersion"
+}
+
+allprojects{
+    tasks.withType(JavaCompile){
+        if(JavaVersion.current() != JavaVersion.VERSION_1_8){
+            options.compilerArgs.addAll(['--release', '8'])
+        }
+    }
+}
+
+jar{
+    archiveFileName = "${project.archivesBaseName}.jar"
+    from{configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}}
+}
