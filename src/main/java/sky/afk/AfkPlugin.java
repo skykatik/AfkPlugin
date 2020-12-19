@@ -83,7 +83,6 @@ public class AfkPlugin extends Plugin{
                         activity.update(player);
                     }
                 }
-                activities.forEach(e -> Structs.each(Log::info, gson.toJson(e.value).split("\n")));
             }
         }, 3, 15);
     }
