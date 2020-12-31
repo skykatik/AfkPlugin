@@ -100,5 +100,7 @@ public class AfkPlugin extends Plugin{
 
         /** Kick duration. Default 1 second */
         public long kickDuration = 1000 * 1;
+        /** add kick url, kicks player into hub url */
+        public String kickurl = "";
     }
 }
