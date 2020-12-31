@@ -95,10 +95,10 @@ public class AfkPlugin extends Plugin{
         /** Kick inactive admins */
         public boolean ignoreAdmins = true;
 
-        /** Inactivity player time. In milliseconds. Default 30 minutes */
-        public long inactivityTime = 1000 * 60 * 30;
+        /** Inactivity player time. In milliseconds. Default 5 minutes */
+        public long inactivityTime = 1000 * 60 * 5;
 
-        /** Kick duration. Default 1 minute */
-        public long kickDuration = 1000 * 60;
+        /** Kick duration. Default 1 second */
+        public long kickDuration = 1000 * 1;
     }
 }
