@@ -62,16 +62,19 @@ public class AfkPlugin extends Plugin{
 
         Events.on(ConfigEvent.class, event -> {
             Player player = event.player;
-            ActivityInfo activity = activities.get(player.uuid(), () -> new ActivityInfo(player));
-            activity.lastBuildActivityTime = Time.millis();
-            activity.ifAfk();
+            if(player != null){
+                ActivityInfo activity = activities.get(player.uuid(), () -> new ActivityInfo(player));
+                activity.lastBuildActivityTime = Time.millis();
+                activity.ifAfk();
+            }
         });
 
         Timer.schedule(() -> {
             if(state.isPlaying()){
                 for(Player player : Groups.player){
                     ActivityInfo activity = activities.get(player.uuid(), () -> new ActivityInfo(player));
-                    if(!activity.afk && activity.isStand(player) || activity.isOldMessage(player)){
+                    Log.debug("@ | @ | @ | @", !activity.afk, activity.isStand(player), activity.isOldMessage(player), Time.timeSinceMillis(activity.lastBuildActivityTime) < config.inactivityTime);
+                    if(!activity.afk && activity.isStand(player) && activity.isOldMessage(player) ^ Time.timeSinceMillis(activity.lastBuildActivityTime) < config.inactivityTime){
                         Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] at now inactive!", NetClient.colorizeName(player.id(), player.name())));
                         activity.afk = true;
                         if(config.enableKick){
