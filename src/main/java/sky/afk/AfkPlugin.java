@@ -55,9 +55,11 @@ public class AfkPlugin extends Plugin{
         Events.on(BlockBuildBeginEvent.class, event -> {
             if(event.unit.isPlayer()){
                 Player player = (Player)event.unit.controller();
-                ActivityInfo activity = activities.get(player.uuid(), () -> new ActivityInfo(player));
-                activity.lastBuildActivityTime = Time.millis();
-                activity.ifAfk();
+                if(player != null) {
+                    ActivityInfo activity = activities.get(player.uuid(), () -> new ActivityInfo(player));
+                    activity.lastBuildActivityTime = Time.millis();
+                    activity.ifAfk();
+                }
             }
         });
 
@@ -76,7 +78,7 @@ public class AfkPlugin extends Plugin{
                     ActivityInfo activity = activities.get(player.uuid(), () -> new ActivityInfo(player));
                     Log.debug("@ | @ | @ | @", !activity.afk, activity.isStand(player), activity.isOldMessage(player), Time.timeSinceMillis(activity.lastBuildActivityTime) < config.inactivityTime);
                     if(!activity.afk && activity.isStand(player) && activity.isOldMessage(player) ^ Time.timeSinceMillis(activity.lastBuildActivityTime) < config.inactivityTime){
-                        if (activity.warns >1) {
+                        if (activity.warns >config.warnthreshold) {
                             Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] at now inactive!", NetClient.colorizeName(player.id(), player.name())));
                             activity.afk = true;
                             if (config.enableKick) {
@@ -114,6 +116,8 @@ public class AfkPlugin extends Plugin{
         /** Inactivity player time. In milliseconds. Default 5 minutes */
         public long inactivityTime = 1000*20;//1000 * 60 * 5;
 
+        /** warning threshold, number of times for warnings before kick*/
+        public int warnthreshold = 2;
         /** Kick duration. Default 1 second */
         public long kickDuration = 1000 * 1;
         /** add kick url, kicks player into hub url */
