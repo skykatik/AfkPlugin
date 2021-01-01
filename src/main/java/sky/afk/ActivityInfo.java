@@ -19,6 +19,7 @@ public class ActivityInfo{
     public float mouseY;
 
     public boolean afk;
+    public int warns;
 
     public long lastBuildActivityTime;
 

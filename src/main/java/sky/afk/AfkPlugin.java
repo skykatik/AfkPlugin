@@ -5,6 +5,7 @@ import arc.files.Fi;
 import arc.struct.*;
 import arc.util.*;
 import com.google.gson.*;
+import mindustry.Vars;
 import mindustry.core.*;
 import mindustry.game.EventType.*;
 import mindustry.gen.*;
@@ -24,7 +25,7 @@ public class AfkPlugin extends Plugin{
     protected static Config config;
 
     public AfkPlugin(){
-        Fi cfg = dataDirectory.child("afk-plugin.json");
+        Fi cfg = dataDirectory.child("mods/afk-plugin.json");
         if(!cfg.exists()){
             config = new Config();
             cfg.writeString(gson.toJson(config));
@@ -62,43 +63,69 @@ public class AfkPlugin extends Plugin{
 
         Events.on(ConfigEvent.class, event -> {
             Player player = event.player;
-            ActivityInfo activity = activities.get(player.uuid(), () -> new ActivityInfo(player));
-            activity.lastBuildActivityTime = Time.millis();
-            activity.ifAfk();
+            if(player != null){
+                ActivityInfo activity = activities.get(player.uuid(), () -> new ActivityInfo(player));
+                activity.lastBuildActivityTime = Time.millis();
+                activity.ifAfk();
+            }
         });
+
+//        Events.on(ConfigEvent.class, event -> {
+//            Player player = event.player;
+//            ActivityInfo activity = activities.get(player.uuid(), () -> new ActivityInfo(player));
+//            activity.lastBuildActivityTime = Time.millis();
+//            activity.ifAfk();
+//        });
 
         Timer.schedule(() -> {
             if(state.isPlaying()){
                 for(Player player : Groups.player){
                     ActivityInfo activity = activities.get(player.uuid(), () -> new ActivityInfo(player));
-                    if(!activity.afk && activity.isStand(player) || activity.isOldMessage(player)){
-                        Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] at now inactive!", NetClient.colorizeName(player.id(), player.name())));
-                        activity.afk = true;
-                        if(config.enableKick){
-                            if(!player.admin() || player.admin() && !config.ignoreAdmins){
-                                player.kick("You have been kicked for inactive from the server!", (int)config.kickDuration);
+                    Log.debug("@ | @ | @ | @", !activity.afk, activity.isStand(player), activity.isOldMessage(player), Time.timeSinceMillis(activity.lastBuildActivityTime) < config.inactivityTime);
+                    if(!activity.afk && activity.isStand(player) && activity.isOldMessage(player) ^ Time.timeSinceMillis(activity.lastBuildActivityTime) < config.inactivityTime){
+                        if (activity.warns >1) {
+                            Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] at now inactive!", NetClient.colorizeName(player.id(), player.name())));
+                            activity.afk = true;
+                            if (config.enableKick) {
+                                if (!player.admin() || player.admin() && !config.ignoreAdmins) {
+                                    //player.kick("You have been kicked for inactive from the server!", (int)config.kickDuration);
+                                    Vars.net.pingHost(config.kickurl, config.kickport, host -> {
+                                        Call.infoMessage(player.con, "You have been kicked for AFK ;-;");
+                                        Call.connect(player.con, config.kickurl, config.kickport);
+                                    }, (e) -> {
+                                    });
+                                }
                             }
+                        }else{
+                            Call.sendMessage(Strings.format("warn number"+activity.warns+"[lightgray]Player @[lightgray] at now inactive!", NetClient.colorizeName(player.id(), player.name())));
+                            activity.warns ++;
+                            activity.update(player);
                         }
                     }else{
                         activity.update(player);
+                        activity.warns=0;
                     }
                 }
             }
-        }, 5, 15);
+        }, 2, 60);
     }
 
     static class Config{
 
         /** Enable auto kick */
-        public boolean enableKick;
+        public boolean enableKick = false;
 
         /** Kick inactive admins */
         public boolean ignoreAdmins = true;
 
-        /** Inactivity player time. In milliseconds. Default 30 minutes */
-        public long inactivityTime = 1000 * 60 * 30;
+        /** Inactivity player time. In milliseconds. Default 5 minutes */
+        public long inactivityTime = 1000*20;//1000 * 60 * 5;
 
-        /** Kick duration. Default 3 minutes */
-        public long kickDuration = 1000 * 60;
+        /** Kick duration. Default 1 second */
+        public long kickDuration = 1000 * 1;
+        /** add kick url, kicks player into hub url */
+        public String kickurl = "alexmindustryhub.ddns.net";
+        /** add kick url, kicks player into hub port */
+        public int kickport = 6568;
     }
 }
