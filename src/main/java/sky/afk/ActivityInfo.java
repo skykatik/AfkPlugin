@@ -25,6 +25,7 @@ public class ActivityInfo{
 
     public ActivityInfo(Player player){
         update(player);
+        warns=0;
     }
 
     public void update(Player player){
@@ -35,13 +36,25 @@ public class ActivityInfo{
 
         mouseX = player.mouseX();
         mouseY = player.mouseY();
+
     }
 
     public void ifAfk(){
         if(afk){
-            Player player = Objects.requireNonNull(Groups.player.find(p -> Objects.equals(p.uuid(), uuid)), "User with uuid '" + uuid + "' not found");
-            Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] at now active!", NetClient.colorizeName(player.id(), player.name())));
+//            Player player = Objects.requireNonNull(Groups.player.find(p -> Objects.equals(p.uuid(), uuid)), "User with uuid '" + uuid + "' not found");
+//            if (player!=null) {
+//                Call.sendMessage(Strings.format("@[lightgray] at now active! Warns reseted (0/" + config.warnthreshold + ")", NetClient.colorizeName(player.id(), player.name())));
+//            }
             afk = false;
+        }
+        if (warns>0){
+            if (warns>1) {
+                Player player = Objects.requireNonNull(Groups.player.find(p -> Objects.equals(p.uuid(), uuid)), "User with uuid '" + uuid + "' not found");
+                if (player != null) {
+                    Call.sendMessage(Strings.format("Player @[lightgray] is not afk anymore! Warns reseted (0/" + (config.warnthreshold + 1) + ")", NetClient.colorizeName(player.id(), player.name())));
+                }
+            }
+            warns=0;
         }
     }
 
