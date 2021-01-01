@@ -47,7 +47,7 @@ public class ActivityInfo{
 
     public boolean isOldMessage(Player player){
         PlayerInfo playerInfo = player.getInfo();
-        return playerInfo.lastMessageTime != 0 && Time.millis() - playerInfo.lastMessageTime > config.inactivityTime;
+        return Time.timeSinceMillis(playerInfo.lastMessageTime) > config.inactivityTime;
     }
 
     public boolean isStand(Player player){
