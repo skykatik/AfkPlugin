@@ -70,13 +70,6 @@ public class AfkPlugin extends Plugin{
             }
         });
 
-//        Events.on(ConfigEvent.class, event -> {
-//            Player player = event.player;
-//            ActivityInfo activity = activities.get(player.uuid(), () -> new ActivityInfo(player));
-//            activity.lastBuildActivityTime = Time.millis();
-//            activity.ifAfk();
-//        });
-
         Timer.schedule(() -> {
             if(state.isPlaying()){
                 for(Player player : Groups.player){
