@@ -97,14 +97,14 @@ public class AfkPlugin extends Plugin{
                                     }, (e) -> {
                                     });
                                 }else{
-                                    Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] is afk!!", NetClient.colorizeName(player.id(), player.name())));
+                                    player.sendMessage(Strings.format("[lightgray]Player @[lightgray] is afk!!", NetClient.colorizeName(player.id(), player.name())));
                                 }
                             }else{
-                                Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] is afk!", NetClient.colorizeName(player.id(), player.name())));
+                                player.sendMessage(Strings.format("[lightgray]Player @[lightgray] is afk!", NetClient.colorizeName(player.id(), player.name())));
                             }
                         }else{
                             if (activity.warns != 0) {
-                                Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] is afk! Warning (" + (activity.warns) + "/" + (config.warnthreshold+1) + ")", NetClient.colorizeName(player.id(), player.name())));
+                                player.sendMessage(Strings.format("[lightgray]Player @[lightgray] is afk! Warning (" + (activity.warns) + "/" + (config.warnthreshold+1) + ")", NetClient.colorizeName(player.id(), player.name())));
                                 //Call.infoMessage(player.con,"AFK Warning! ("+(activity.warns+1)+"/"+config.warnthreshold+")");
                             }
                             activity.warns++;
