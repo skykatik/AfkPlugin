@@ -26,10 +26,10 @@ public class AfkPlugin extends Plugin{
     public AfkPlugin(){
         Fi cfg = dataDirectory.child("afk-plugin.json");
         if(!cfg.exists()){
-            config = new Config();
-            cfg.writeString(gson.toJson(config));
+            cfg.writeString(gson.toJson(config = new Config()));
+        }else{
+            config = gson.fromJson(cfg.reader(), Config.class);
         }
-        config = gson.fromJson(cfg.reader(), Config.class);
     }
 
     @Override
@@ -37,8 +37,10 @@ public class AfkPlugin extends Plugin{
 
         Events.on(TapEvent.class, event -> {
             Player player = event.player;
-            ActivityInfo activity = activities.get(player.uuid(), () -> new ActivityInfo(player));
-            activity.ifAfk();
+            if(player != null){
+                ActivityInfo activity = activities.get(player.uuid(), () -> new ActivityInfo(player));
+                activity.ifAfk();
+            }
         });
 
         Events.on(PlayerChatEvent.class, event -> {
