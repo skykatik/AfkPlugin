@@ -1,8 +1,7 @@
 apply plugin: "java"
 
-version '1.0'
-
 sourceCompatibility = 1.8
+targetCompatibility = 14
 
 repositories{
     mavenCentral()
@@ -10,15 +9,15 @@ repositories{
 }
 
 ext{
-    mindustryVrsion = "v122"
-    gsonVersion = "2.8.6"
+    mindustry_version = 'v122'
+    gson_version = '2.8.6'
 }
 
 dependencies{
-    compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVrsion"
-    compileOnly "com.github.Anuken.Mindustry:core:$mindustryVrsion"
+    compileOnly "com.github.Anuken.Arc:arc-core:$mindustry_version"
+    compileOnly "com.github.Anuken.Mindustry:core:$mindustry_version"
 
-    implementation "com.google.code.gson:gson:$gsonVersion"
+    implementation "com.google.code.gson:gson:$gson_version"
 }
 
 allprojects{
