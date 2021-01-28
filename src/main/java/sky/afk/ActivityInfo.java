@@ -45,9 +45,12 @@ public class ActivityInfo{
         }
         if (warns>0){
             if (warns>1) {
-                Player player = Objects.requireNonNull(Groups.player.find(p -> Objects.equals(p.uuid(), uuid)), "User with uuid '" + uuid + "' not found");
-                if (player != null) {
-                    player.sendMessage(Strings.format("Player @[lightgray] is not afk anymore! Warns reset (0/" + (config.warnthreshold + 1) + ")", NetClient.colorizeName(player.id(), player.name())));
+                try {
+                    Player player = Objects.requireNonNull(Groups.player.find(p -> Objects.equals(p.uuid(), uuid)), "User with uuid '" + uuid + "' not found");
+                    if (player != null) {
+                        player.sendMessage(Strings.format("Player @[lightgray] is not afk anymore! Warns reset (0/" + (config.warnthreshold + 1) + ")", NetClient.colorizeName(player.id(), player.name())));
+                    }
+                } catch(Exception ignored){
                 }
             }
             warns=0;
