@@ -38,7 +38,7 @@ public class ActivityInfo{
 
     public void ifAfk(){
         if(afk){
-            Player player = Objects.requireNonNull(Groups.player.find(p -> Objects.equals(p.uuid(), uuid)), "User with uuid '" + uuid + "' not found");
+            Player player = Objects.requireNonNull(Groups.player.find(p -> p.uuid().equals(uuid)), "User with uuid '" + uuid + "' not found");
             Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] at now active!", NetClient.colorizeName(player.id(), player.name())));
             afk = false;
         }
@@ -50,10 +50,10 @@ public class ActivityInfo{
     }
 
     public boolean isStand(Player player){
-        return inDiapason(tileX, player.tileX(), 3F) &&
-               inDiapason(tileY, player.tileY(), 3F) ||
-               inDiapason(mouseX, player.mouseX(), 1.5F) &&
-               inDiapason(mouseY, player.mouseY(), 1.5F);
+        return inDiapason(tileX, player.tileX(), 3f) &&
+               inDiapason(tileY, player.tileY(), 3f) ||
+               inDiapason(mouseX, player.mouseX(), 1.5f) &&
+               inDiapason(mouseY, player.mouseY(), 1.5f);
     }
 
     private boolean inDiapason(float f1, float f2, float d){
