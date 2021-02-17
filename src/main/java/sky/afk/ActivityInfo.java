@@ -4,8 +4,6 @@ import arc.util.*;
 import mindustry.core.NetClient;
 import mindustry.gen.*;
 
-import java.util.Objects;
-
 import static mindustry.net.Administration.PlayerInfo;
 import static sky.afk.AfkPlugin.config;
 
@@ -38,7 +36,7 @@ public class ActivityInfo{
 
     public void ifAfk(){
         if(afk){
-            Player player = Objects.requireNonNull(Groups.player.find(p -> p.uuid().equals(uuid)), "User with uuid '" + uuid + "' not found");
+            Player player = Groups.player.find(p -> p.uuid().equals(uuid));
             Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] at now active!", NetClient.colorizeName(player.id(), player.name())));
             afk = false;
         }
