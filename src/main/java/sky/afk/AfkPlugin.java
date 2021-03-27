@@ -102,7 +102,7 @@ public class AfkPlugin extends Plugin{
         /** Inactivity player time. In milliseconds. Default 30 minutes */
         public long inactivityTime = 1000 * 60 * 30;
 
-        /** Kick duration. Default 1 minute */
-        public long kickDuration = 1000 * 60;
+        /** Kick duration. In milliseconds. Default 1 second */
+        public long kickDuration = 1000;
     }
 }
