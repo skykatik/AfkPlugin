@@ -5,10 +5,12 @@ import arc.files.Fi;
 import arc.struct.*;
 import arc.util.*;
 import com.google.gson.*;
+import mindustry.Vars;
 import mindustry.core.*;
 import mindustry.game.EventType.*;
 import mindustry.gen.*;
 import mindustry.mod.Plugin;
+import mindustry.ui.dialogs.JoinDialog;
 
 import static mindustry.Vars.*;
 
@@ -72,23 +74,33 @@ public class AfkPlugin extends Plugin{
         });
 
         Timer.schedule(() -> {
-            if(state.isPlaying()){
-                for(Player player : Groups.player){
-                    ActivityInfo activity = activities.get(player.uuid(), () -> new ActivityInfo(player));
-                    if(!activity.afk && activity.isStand(player) && activity.isOldMessage(player) ^ Time.timeSinceMillis(activity.lastBuildActivityTime) < config.inactivityTime){
-                        Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] at now inactive!", NetClient.colorizeName(player.id(), player.name())));
-                        activity.afk = true;
-                        if(config.enableKick){
-                            if(!player.admin() || player.admin() && !config.ignoreAdmins){
-                                player.kick("You have been kicked for inactive from the server!", (int)config.kickDuration);
-                            }
-                        }
-                    }else{
-                        activity.update(player);
+            for(Player player : Groups.player){
+                ActivityInfo activity = activities.get(player.uuid(), () -> new ActivityInfo(player));
+                if(!activity.afk && activity.isStand(player) && activity.isOldMessage(player) ^ Time.timeSinceMillis(activity.lastBuildActivityTime) < config.inactivityTime){
+                    Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] at now inactive!", NetClient.colorizeName(player.id(), player.name())));
+                    activity.afk = true;
+                    if(config.enableKick && (!player.admin() || player.admin() && !config.ignoreAdmins)){
+                        player.kick("You have been kicked for inactive from the server!", (int)config.kickDuration);
+                        connectToHub(player);
                     }
+                }else{
+                    activity.update(player);
                 }
             }
         }, 5, 15);
+    }
+
+    private void connectToHub(Player player){
+        if(config.hubIp != null){
+            String ip = config.hubIp;
+            int port = Vars.port;
+            String[] parts = ip.split(":");
+            if(ip.contains(":") && Strings.canParsePositiveInt(parts[1])){
+                ip = parts[0];
+                port = Strings.parseInt(parts[1]);
+            }
+            Call.connect(player.con, ip, port);
+        }
     }
 
     static class Config{
@@ -99,10 +111,17 @@ public class AfkPlugin extends Plugin{
         /** Kick inactive admins */
         public boolean ignoreAdmins = true;
 
+        /** Hub IP address. write in the format <b>ip:port</b>. Default disabled */
+        public String hubIp = null;
+
         /** Inactivity player time. In milliseconds. Default 30 minutes */
         public long inactivityTime = 1000 * 60 * 30;
 
         /** Kick duration. In milliseconds. Default 1 second */
         public long kickDuration = 1000;
+
+        // TODO: implement
+        /** Max warnings count. If {@code -1} then disabled. Default disabled */
+        public int maxWarningsCount = -1;
     }
 }
