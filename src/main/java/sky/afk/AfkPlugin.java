@@ -31,6 +31,7 @@ public class AfkPlugin extends Plugin{
             cfg.writeString(gson.toJson(config = new Config()));
         }else{
             config = gson.fromJson(cfg.reader(), Config.class);
+            Log.info("Configuration file created... (@)", cfg.absolutePath());
         }
     }
 
@@ -79,8 +80,12 @@ public class AfkPlugin extends Plugin{
                 if(!activity.afk && activity.isStand(player) && activity.isOldMessage(player) ^ Time.timeSinceMillis(activity.lastBuildActivityTime) < config.inactivityTime){
                     Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] at now inactive!", NetClient.colorizeName(player.id(), player.name())));
                     activity.afk = true;
-                    if(config.enableKick && (!player.admin() || player.admin() && !config.ignoreAdmins)){
-                        player.kick("You have been kicked for inactive from the server!", (int)config.kickDuration);
+                    activity.warnings++;
+
+                    if(config.enableKick && (!player.admin() || player.admin() && !config.ignoreAdmins)
+                       || (activity.warnings > config.maxWarningsCount && config.warningsEnabled())){
+
+                        player.kick("You have been kicked for inactive from the server!", config.kickDuration);
                         connectToHub(player);
                     }
                 }else{
@@ -120,8 +125,11 @@ public class AfkPlugin extends Plugin{
         /** Kick duration. In milliseconds. Default 1 second */
         public long kickDuration = 1000;
 
-        // TODO: implement
         /** Max warnings count. If {@code -1} then disabled. Default disabled */
         public int maxWarningsCount = -1;
+
+        public boolean warningsEnabled(){
+            return maxWarningsCount != -1;
+        }
     }
 }

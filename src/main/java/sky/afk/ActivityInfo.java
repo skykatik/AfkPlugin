@@ -19,6 +19,7 @@ public class ActivityInfo{
     public boolean afk;
 
     public long lastBuildActivityTime;
+    public int warnings = 0;
 
     public ActivityInfo(Player player){
         update(player);
@@ -38,6 +39,11 @@ public class ActivityInfo{
         if(afk){
             Player player = Groups.player.find(p -> p.uuid().equals(uuid));
             Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] at now active!", NetClient.colorizeName(player.id(), player.name())));
+            if(warnings != 0 && config.warningsEnabled()){
+                Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] is not afk anymore! Warns reseted (@/@)",
+                        NetClient.colorizeName(player.id(), player.name()), warnings, config.maxWarningsCount));
+                warnings = 0;
+            }
             afk = false;
         }
     }
