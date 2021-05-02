@@ -2,21 +2,21 @@ package sky.afk;
 
 import arc.Events;
 import arc.files.Fi;
-import arc.struct.*;
+import arc.struct.ObjectMap;
 import arc.util.*;
 import com.google.gson.*;
 import mindustry.Vars;
-import mindustry.core.*;
+import mindustry.core.NetClient;
 import mindustry.game.EventType.*;
 import mindustry.gen.*;
 import mindustry.mod.Plugin;
-import mindustry.ui.dialogs.JoinDialog;
 
 import static mindustry.Vars.*;
 
 public class AfkPlugin extends Plugin{
     public final ObjectMap<String, ActivityInfo> activities = new ObjectMap<>();
 
+    private final Interval interval = new Interval();
     private final Gson gson = new GsonBuilder()
             .serializeNulls()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES)
@@ -25,18 +25,16 @@ public class AfkPlugin extends Plugin{
 
     protected static Config config;
 
-    public AfkPlugin(){
+    @Override
+    public void init(){
+
         Fi cfg = dataDirectory.child("afk-plugin.json");
         if(!cfg.exists()){
             cfg.writeString(gson.toJson(config = new Config()));
+            Log.info("Configuration file created... (@)", cfg.absolutePath());
         }else{
             config = gson.fromJson(cfg.reader(), Config.class);
-            Log.info("Configuration file created... (@)", cfg.absolutePath());
         }
-    }
-
-    @Override
-    public void init(){
 
         Events.on(TapEvent.class, event -> {
             Player player = event.player;
@@ -74,25 +72,38 @@ public class AfkPlugin extends Plugin{
             }
         });
 
-        Timer.schedule(() -> {
-            for(Player player : Groups.player){
-                ActivityInfo activity = activities.get(player.uuid(), () -> new ActivityInfo(player));
-                if(!activity.afk && activity.isStand(player) && activity.isOldMessage(player) ^ Time.timeSinceMillis(activity.lastBuildActivityTime) < config.inactivityTime){
-                    Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] at now inactive!", NetClient.colorizeName(player.id(), player.name())));
-                    activity.afk = true;
-                    activity.warnings++;
+        Events.run(Trigger.update, () -> {
+            if(interval.get(60f * 0.75f)){
+                for(Player player : Groups.player){
+                    ActivityInfo activity = activities.get(player.uuid(), () -> new ActivityInfo(player));
+                    boolean notAdmin = !player.admin() || player.admin() && !config.ignoreAdmins;
+                    if(activity.isStand(player) & activity.isOldMessage(player) & activity.isOldBuildActivity()){
+                        if(!activity.afk){
+                            Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] at now inactive!",
+                                    NetClient.colorizeName(player.id(), player.name())));
+                            activity.afk = true;
+                        }else if(config.warningsEnabled() && notAdmin && activity.warnings < config.maxWarningsCount){
+                            Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] at now inactive! Warning (@/@)",
+                                    NetClient.colorizeName(player.id(), player.name()), activity.warnings, config.maxWarningsCount));
+                        }
 
-                    if(config.enableKick && (!player.admin() || player.admin() && !config.ignoreAdmins)
-                       || (activity.warnings > config.maxWarningsCount && config.warningsEnabled())){
+                        activity.warnings++;
 
-                        player.kick("You have been kicked for inactive from the server!", config.kickDuration);
-                        connectToHub(player);
+                        if(notAdmin && config.warningsEnabled() && activity.warnings > config.maxWarningsCount){
+                            if(config.enableKick){
+                                player.kick("You have been kicked for inactive from the server!", config.kickDuration);
+                                return;
+                            }
+
+                            connectToHub(player);
+                        }
+                    }else{
+                        activity.update(player);
+                        activity.ifAfk();
                     }
-                }else{
-                    activity.update(player);
                 }
             }
-        }, 5, 15);
+        });
     }
 
     private void connectToHub(Player player){

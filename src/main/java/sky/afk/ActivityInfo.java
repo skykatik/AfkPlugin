@@ -38,11 +38,13 @@ public class ActivityInfo{
     public void ifAfk(){
         if(afk){
             Player player = Groups.player.find(p -> p.uuid().equals(uuid));
-            Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] at now active!", NetClient.colorizeName(player.id(), player.name())));
             if(warnings != 0 && config.warningsEnabled()){
-                Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] is not afk anymore! Warns reseted (@/@)",
-                        NetClient.colorizeName(player.id(), player.name()), warnings, config.maxWarningsCount));
+                Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] at now active! Warns reset",
+                        NetClient.colorizeName(player.id(), player.name())));
                 warnings = 0;
+            }else{
+                Call.sendMessage(Strings.format("[lightgray]Player @[lightgray] at now active!",
+                        NetClient.colorizeName(player.id(), player.name())));
             }
             afk = false;
         }
@@ -51,6 +53,10 @@ public class ActivityInfo{
     public boolean isOldMessage(Player player){
         PlayerInfo playerInfo = player.getInfo();
         return Time.timeSinceMillis(playerInfo.lastMessageTime) > config.inactivityTime;
+    }
+
+    public boolean isOldBuildActivity(){
+        return Time.timeSinceMillis(lastBuildActivityTime) > config.inactivityTime;
     }
 
     public boolean isStand(Player player){
