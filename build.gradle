@@ -1,15 +1,15 @@
-apply plugin: "java"
+apply plugin: 'java'
 
 sourceCompatibility = 1.8
 targetCompatibility = 14
 
 repositories{
     mavenCentral()
-    maven{ url 'https://www.jitpack.io' }
+    maven{url 'https://www.jitpack.io'}
 }
 
 ext{
-    mindustry_version = 'v126.1'
+    mindustry_version = 'v126.2'
     gson_version = '2.8.6'
 }
 
@@ -20,15 +20,15 @@ dependencies{
     implementation "com.google.code.gson:gson:$gson_version"
 }
 
-allprojects{
-    tasks.withType(JavaCompile){
-        if(JavaVersion.current() != JavaVersion.VERSION_1_8){
-            options.compilerArgs.addAll(['--release', '8'])
-        }
+tasks.withType(JavaCompile){
+    if(JavaVersion.current() != JavaVersion.VERSION_1_8){
+        options.compilerArgs.addAll(['--release', '8'])
     }
 }
 
 jar{
     archiveFileName = "${project.archivesBaseName}.jar"
-    from{configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}}
+    from{
+        configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}
+    }
 }
